@@ -68,9 +68,9 @@
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link " href="#">
+                                <a class="nav-link " href="{{route('admin.categories.index')}}">
                                     <i class="fa-solid fa-bookmark"></i>
-                                    Categories
+                                    {{__('Categories')}}
                                 </a>
                             </li>
                             <li class="nav-item">
