@@ -1,6 +1,6 @@
 # Recap steps Laaravel Auth
 
-- Istall laravel `compsoer requrie laravel/laravel^9.2 project-name`
+- Istall laravel `composer requrie laravel/laravel^9.2 project-name`
 - Install Breeze starter kit `composer require laravel/breeze --dev`
 - Run Breeze command `php artisan breeze:install`
 - Install Laravel BS preset `composer require pacificdev/laravel_9_preset`
@@ -242,3 +242,198 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
 ```
 
 Standard CRUD OPS inside the PostController now 👇
+
+## Relationships OneToMany
+
+- create the categories table `php artisan make:migration create_categories_table`
+
+```php
+// You need to fill the migration file
+```
+
+- create migration to add foreign key to posts table `php artian  make:migration add_foreign_category_id_to_posts_table`
+
+```php
+    public function up()
+    {
+        Schema::table('posts', function (Blueprint $table) {
+            // Add the column first
+            $table->unsignedBigInteger('category_id')->nullable()->after('id');
+
+            // Add the foreign key
+            $table->foreign('category_id')->references('id')->on('categories')->onDelete('set null');
+        });
+    }
+```
+
+down method migration
+
+```php
+
+/**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
+    public function down()
+    {
+        Schema::table('posts', function (Blueprint $table) {
+            // drop the constrains
+            $table->dropForeign('posts_category_id_foreign');
+            // drop the column
+            $table->dropColumn('category_id');
+        });
+    }
+```
+
+Migrate the db
+
+```php
+
+php artisan migrate
+```
+
+## Add models relationship
+
+Add has many relationship between Post -> Category
+
+Definition: A post belongs to a category.
+
+```php
+// Post.php
+/**
+     * Get the category that owns the Post
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function category(): BelongsTo
+    {
+        return $this->belongsTo(Category::class);
+    }
+
+
+```
+
+😱 Remember:
+You need to import `use Illuminate\Database\Eloquent\Relations\BelongsTo;`
+
+😱 Remember:
+to the new field add category_id to fillable properties in Post.php.
+
+The inverse of the relation
+
+Definition: A category has many posts.
+
+```php
+// Category.php
+public function posts(): HasMany
+  {
+      return $this->hasMany(Post::class);
+  }
+
+```
+
+## Edit the CRUD to add categories to views create
+
+Pass all categories in the create method and compact to the view
+
+```php
+    public function create()
+    {
+
+
+        $categories = Category::orderByDesc('id')->get();
+
+        return view('admin.posts.create', compact('categories'));
+    }
+
+```
+
+Edit the [create] view to show a select
+
+```php
+
+    <div class="mb-3">
+        <label for="category_id" class="form-label">Categories</label>
+        <select class="form-select @error('category_id') is-invalid @enderror" name="category_id" id="category_id">
+            <option value="">Select a category</option>
+            @foreach ($categories as $category)
+            <option value="{{$category->id}}" {{ $category->id  == old('category_id', '') ? 'selected' : '' }}>{{$category->name}}</option>
+            @endforeach
+        </select>
+    </div>
+```
+
+## Validate the category selected
+
+You need to add a validation rule to validate the category_id.
+Edit the StorePostRequest.php
+
+```php
+// StorePostRequest.php
+public function rules()
+    {
+        return [
+            'title' => ['required', 'unique:posts', 'max:150'],
+            'cover_image' => ['nullable', 'max:255'],
+            'content' => ['nullable'],
+            'category_id' => ['exists:categories,id'] // 👈 Add validation ['exists:table,column']
+        ];
+    }
+
+```
+
+## Edit the CRUD to add categories to view edit
+
+Pass all categories in the edit method and compact to the view
+
+```php
+    public function edit(Post $post)
+    {
+        $categories = Category::orderByDesc('id')->get();
+        return view('admin.posts.edit', compact('post', 'categories'));
+    }
+
+```
+
+Edit the [edit] view to show a select
+
+```php
+
+   <div class="mb-3">
+        <label for="category_id" class="form-label">Categories</label>
+        <select class="form-select @error('category_id') is-invalid @enderror" name=" category_id" id="category_id">
+            <option value="">Select a category</option>
+            @foreach ($categories as $category)                                       //👇 We need to take the current category associated to the post.
+            <option value="{{$category->id}}" {{ $category->id  == old('category_id', $post->category->id) ? 'selected' : '' }}>{{$category->name}}</option>
+            @endforeach
+        </select>
+    </div>
+```
+
+## Validate the category selected
+
+You need to add a validation rule to validate the category_id.
+Edit the UpdatePostRequest.php
+
+```php
+// UpdatePostRequest.php
+public function rules()
+    {
+        return [
+            'title' => ['required', 'unique:posts', 'max:150'],
+            'cover_image' => ['nullable', 'max:255'],
+            'content' => ['nullable'],
+            'category_id' => ['exists:categories,id'] // 👈 Add validation ['exists:table,column']
+        ];
+    }
+
+```
+
+Show the category name in the show view
+
+```php
+<div class="meta">
+    <span class="badge bg-primary">{{$post->category?->name}}</span>
+</div>
+```

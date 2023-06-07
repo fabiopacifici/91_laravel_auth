@@ -6,6 +6,7 @@ use App\Http\Requests\StorePostRequest;
 use App\Http\Requests\UpdatePostRequest;
 use App\Models\Post;
 use App\Http\Controllers\Controller;
+use App\Models\Category;
 
 class PostController extends Controller
 {
@@ -28,7 +29,11 @@ class PostController extends Controller
      */
     public function create()
     {
-        return view('admin.posts.create');
+
+
+        $categories = Category::orderByDesc('id')->get();
+
+        return view('admin.posts.create', compact('categories'));
     }
 
     /**
@@ -42,6 +47,8 @@ class PostController extends Controller
         //dd($request->all());
         // validate the request
         $val_data =  $request->validated();
+        //dd($val_data);
+
         // generate the title slug
         $slug = Post::generateSlug($val_data['title']);
         //dd($slug);
@@ -62,7 +69,7 @@ class PostController extends Controller
      */
     public function show(Post $post)
     {
-        //
+        return view('admin.posts.show', compact('post'));
     }
 
     /**
@@ -73,7 +80,8 @@ class PostController extends Controller
      */
     public function edit(Post $post)
     {
-        //
+        $categories = Category::orderByDesc('id')->get();
+        return view('admin.posts.edit', compact('post', 'categories'));
     }
 
     /**
@@ -85,7 +93,27 @@ class PostController extends Controller
      */
     public function update(UpdatePostRequest $request, Post $post)
     {
-        //
+        //dd($request->all());
+
+        $val_data = $request->validated();
+        //dd($val_data);
+
+        /* TODO:
+        What happens if i update the post title ?
+        */
+        // Checks if the request has a key called title
+        //dd($request->has('title'));
+
+        // generate the title slug
+        $slug = Post::generateSlug($val_data['title']);
+        //dd($slug);
+        $val_data['slug'] = $slug;
+        //dd($val_data);
+
+
+        $post->update($val_data);
+
+        return to_route('admin.posts.index')->with('message', 'Post: ' . $post->title . 'Updated');
     }
 
     /**
@@ -96,6 +124,7 @@ class PostController extends Controller
      */
     public function destroy(Post $post)
     {
-        //
+        $post->delete();
+        return to_route('admin.posts.index')->with('message', 'Post: ' . $post->title . 'Deleted');
     }
 }
