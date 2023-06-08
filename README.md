@@ -444,6 +444,24 @@ Show the category name in the show view
 - create db table for pivot table create_model1_model2_table (in alphabetic order)
 - seeder (bonus)
 - add models relationships (belogsToMany) inside both Models (see the live coding)
+
+example from Post->Tags
+
+```php
+// Post.php
+  /**
+     * The tags that belong to the Post
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function tags(): BelongsToMany
+    {
+        return $this->belongsToMany(Tag::class);
+    }
+```
+
+Nota: add the inverse relationship Tag->Post (BelongsToMany)
+
 - add to ProjectController in create/edit all Technology data and pass to the view (Model::all())
 - edit the two view (create/edit) adding the required checkboxes (use the snipped)
 - validate your Technology fields inside Store and Update FormRequests (<https://laravel.com/docs/9.x/validation#rule-exists>)
@@ -468,5 +486,63 @@ if ($request->has('tags')) {
     $post->tags()->sync($request->tags);
 }
 // redirect to_route
+
+```
+
+## Snippets per vsCode
+
+nel file html.json (File>Preference>ConfigureUserSnippets) select html.json
+
+```json
+{
+
+  // Other snippets here
+
+ "Laravel Blade Many2Many checkbox view create": {
+  "prefix": "@?check-create",
+  "body": [
+   "<div class='form-group'>",
+   "<p>Seleziona i tag:</p>",
+   "@foreach ($$tags as $$tag)",
+   "<div class=\"form-check @error('tags') is-invalid @enderror\">",
+   "<label class='form-check-label'>",
+   "<input name='tags[]' type='checkbox' value='{{ $$tag->id}}' class='form-check-input' {{ in_array($$tag->id, old('tags', [])) ? 'checked' : '' }}>",
+   "{{ $$tag->name }}",
+   "</label>",
+   "</div>",
+   "@endforeach",
+   "@error('tags')",
+   "<div class='invalid-feedback'>{{ $$message}}</div>",
+   "@enderror",
+   "</div>"
+  ]
+ },
+ "Laravel Blade Many2Many checkbox view edit": {
+  "prefix": "@?check-edit",
+  /*   "description": "1 se ci sono degli errori di validazione signifca che bisogna recuperare i tag selezionati tramite la funzione old(),la quale restituisce un array plain contenente solo gli id - 2 se non sono presenti errori di validazione significa che la pagina è appena stata aperta per la prima volta, perciò bisogna recuperare i tag dalla relazione con il post, che è una collection di oggetti di tipo Tag", */
+  "body": [
+   "<div class='form-group'>",
+   "<p>Seleziona i tag:</p>",
+   "@foreach ($$tags as $$tag)",
+   "<div class=\"form-check @error('tags') is-invalid @enderror\">",
+   "<label class='form-check-label'>",
+   "@if($$errors->any())",
+   "$BLOCK_COMMENT_START 1 (if) $BLOCK_COMMENT_END",
+   "<input name=\"tags[]\" type=\"checkbox\" value=\"{{ $$tag->id}}\" class=\"form-check-input\" {{ in_array($$tag->id, old('tags', [])) ? 'checked' : '' }}>",
+   "@else",
+   "$BLOCK_COMMENT_START 2 (else) $BLOCK_COMMENT_END",
+   "<input name='tags[]' type='checkbox' value='{{ $$tag->id }}' class='form-check-input' {{ $$post->tags->contains($$tag) ? 'checked' : '' }}>",
+      "@endif",
+   "{{ $$tag->name }}",
+   "</label>",
+   "</div>",
+   "@endforeach",
+   "@error('tags')",
+   "<div class='invalid-feedback'>{{ $$message}}</div>",
+   "@enderror",
+   "</div>"
+  ]
+ }
+}
 
 ```
