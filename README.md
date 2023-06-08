@@ -437,3 +437,36 @@ Show the category name in the show view
     <span class="badge bg-primary">{{$post->category?->name}}</span>
 </div>
 ```
+
+## Many To Many
+
+- create db table for the given Technology (-a)
+- create db table for pivot table create_model1_model2_table (in alphabetic order)
+- seeder (bonus)
+- add models relationships (belogsToMany) inside both Models (see the live coding)
+- add to ProjectController in create/edit all Technology data and pass to the view (Model::all())
+- edit the two view (create/edit) adding the required checkboxes (use the snipped)
+- validate your Technology fields inside Store and Update FormRequests (<https://laravel.com/docs/9.x/validation#rule-exists>)
+- attach and sync the relationships inside store and update methods
+
+PostControler@store
+
+```php
+
+// Attach the checked tags
+if ($request->has('tags')) {
+    $new_post->tags()->attach($request->tags);
+}
+// redirect to_route
+```
+
+PostControler@update
+
+```php
+// sync the new updated tags
+if ($request->has('tags')) {
+    $post->tags()->sync($request->tags);
+}
+// redirect to_route
+
+```

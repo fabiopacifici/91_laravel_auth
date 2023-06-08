@@ -28,6 +28,26 @@
     </div>
 
 
+    <div class="form-group">
+        <p>Seleziona i tag:</p>
+        @foreach ($tags as $tag)
+        <div class="form-check @error('tags') is-invalid @enderror">
+
+            <label class="form-check-label">
+                <input name="tags[]" type="checkbox" value="{{ $tag->id }}" class="form-check-input" {{ in_array($tag->id, old('tags', [])) ? 'checked' : '' }}>
+                {{ $tag->name }}
+            </label>
+        </div>
+        @endforeach
+
+        @error('tags')
+        <div class="invalid-feedback">{{ $message }}</div>
+        @enderror
+    </div>
+
+
+
+
 
     <div class="mb-3">
         <label for="cover_image" class="form-label">Image</label>
@@ -42,6 +62,8 @@
 
 
     <button type="submit" class="btn btn-dark">Save</button>
+
+
 
 </form>
 

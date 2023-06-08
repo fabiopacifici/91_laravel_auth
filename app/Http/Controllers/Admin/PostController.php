@@ -7,6 +7,8 @@ use App\Http\Requests\UpdatePostRequest;
 use App\Models\Post;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
+use App\Models\Tag;
+
 
 class PostController extends Controller
 {
@@ -32,8 +34,10 @@ class PostController extends Controller
 
 
         $categories = Category::orderByDesc('id')->get();
+        $tags = Tag::orderByDesc('id')->get();
 
-        return view('admin.posts.create', compact('categories'));
+        //dd($tags);
+        return view('admin.posts.create', compact('categories', 'tags'));
     }
 
     /**
@@ -56,7 +60,13 @@ class PostController extends Controller
         //dd($val_data);
 
         // Create the new Post
-        Post::create($val_data);
+        $new_post = Post::create($val_data);
+
+        // Attach the checked tags
+        if ($request->has('tags')) {
+            $new_post->tags()->attach($request->tags);
+        }
+
         // redirect back
         return to_route('admin.posts.index')->with('message', 'Post Created Successfully');
     }
@@ -81,7 +91,9 @@ class PostController extends Controller
     public function edit(Post $post)
     {
         $categories = Category::orderByDesc('id')->get();
-        return view('admin.posts.edit', compact('post', 'categories'));
+        $tags = Tag::orderByDesc('id')->get();
+
+        return view('admin.posts.edit', compact('post', 'categories', 'tags'));
     }
 
     /**
@@ -113,6 +125,10 @@ class PostController extends Controller
 
         $post->update($val_data);
 
+        if ($request->has('tags')) {
+            $post->tags()->sync($request->tags);
+        }
+
         return to_route('admin.posts.index')->with('message', 'Post: ' . $post->title . 'Updated');
     }
 
@@ -124,6 +140,8 @@ class PostController extends Controller
      */
     public function destroy(Post $post)
     {
+        //detach all relationships with tags in the pivot table (only if cascadeOnDelete is not in the db migration)
+        //$post->tags()->sync([]);
         $post->delete();
         return to_route('admin.posts.index')->with('message', 'Post: ' . $post->title . 'Deleted');
     }
