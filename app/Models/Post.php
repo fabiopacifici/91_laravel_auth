@@ -13,7 +13,7 @@ class Post extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['title', 'content', 'cover_image', 'slug', 'category_id'];
+    protected $fillable = ['title', 'content', 'cover_image', 'slug', 'category_id', 'user_id'];
 
     public static function generateSlug($title)
     {
@@ -38,5 +38,16 @@ class Post extends Model
     public function tags(): BelongsToMany
     {
         return $this->belongsToMany(Tag::class);
+    }
+
+
+    /**
+     * Get the user that owns the Post
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
     }
 }

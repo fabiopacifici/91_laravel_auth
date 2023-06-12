@@ -27,14 +27,14 @@
             <button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-toggle="collapse" data-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            <input class="form-control form-control-dark w-100" type="text" placeholder="Search" aria-label="Search">
 
 
-            <div class="dropdown px-3">
-                <button class="btn dropdown-toggle" type="button" id="triggerId" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <div class="btn-group dropstart">
+                <button type="button" class="btn dropdown-toggle text-white" data-bs-toggle="dropdown" aria-expanded="false">
                     {{ Auth::user()->name }}
                 </button>
-                <div class="dropdown-menu" aria-labelledby="triggerId">
+                <ul class="dropdown-menu">
+                    <!-- Dropdown menu links -->
                     <a class="dropdown-item" href="{{ url('/') }}">{{__('Home Page')}}</a>
                     <a class="dropdown-item" href="{{ route('logout') }}" onclick="event.preventDefault();
                                                      document.getElementById('logout-form').submit();">
@@ -44,8 +44,7 @@
                     <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
                         @csrf
                     </form>
-
-                </div>
+                </ul>
             </div>
 
         </nav>
@@ -74,9 +73,9 @@
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link " href="#">
+                                <a class="nav-link " href="{{route('admin.tags.index')}}">
                                     <i class="fa-solid fa-tags"></i>
-                                    Tags
+                                    {{__('Tags')}}
                                 </a>
                             </li>
 

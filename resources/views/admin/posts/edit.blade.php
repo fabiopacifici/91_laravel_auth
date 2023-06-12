@@ -8,7 +8,7 @@
 
 @include('partials.validation_errors')
 
-<form action="{{route('admin.posts.update', $post)}}" method="post">
+<form action="{{route('admin.posts.update', $post)}}" method="post" enctype="multipart/form-data">
     @csrf
     @method('PUT')
     <div class="mb-3">
@@ -62,10 +62,15 @@
     </div>
 
 
-    <div class="mb-3">
-        <label for="cover_image" class="form-label">Image</label>
-        <input type="text" class="form-control @error('cover_image') is-invalid @enderror" name="cover_image" id="cover_image" aria-describedby="cover_imageHelper" placeholder="Learn php" value="{{ old('cover_image', $post->cover_image) }}">
-        <small id="cover_imageHelper" class="form-text text-muted">Type the post cover_image max 150 characters - must be unique</small>
+
+    <div class="d-flex gap-3">
+        <img width="100" src="{{asset('storage/' . $post->cover_image)}}" alt="">
+
+        <div class="mb-3">
+            <label for="cover_image" class="form-label">Replace Image</label>
+            <input type="file" class="form-control @error('cover_image') is-invalid @enderror" name="cover_image" id="cover_image" aria-describedby="cover_imageHelper" placeholder="Learn php">
+            <small id="cover_imageHelper" class="form-text text-muted">Type the post cover_image max 950k</small>
+        </div>
     </div>
 
     <div class="mb-3">

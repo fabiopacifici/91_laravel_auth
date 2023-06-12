@@ -8,7 +8,9 @@ use App\Models\Post;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Tag;
-
+use Illuminate\Contracts\Cache\Store;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class PostController extends Controller
 {
@@ -19,7 +21,10 @@ class PostController extends Controller
      */
     public function index()
     {
-        $posts = Post::orderByDesc('id')->paginate(8);
+
+        //dd(Auth::user(), Auth::id());
+
+        $posts = Auth::user()->posts()->orderByDesc('id')->paginate(8);
 
         return view('admin.posts.index', compact('posts'));
     }
@@ -59,6 +64,18 @@ class PostController extends Controller
         $val_data['slug'] = $slug;
         //dd($val_data);
 
+        $val_data['user_id'] = Auth::id();
+        //dd($val_data);
+
+
+        if ($request->hasFile('cover_image')) {
+            $image_path = Storage::put('uploads', $request->cover_image);
+            //dd($image_path);
+            $val_data['cover_image'] = $image_path;
+        }
+
+
+        //dd($val_data);
         // Create the new Post
         $new_post = Post::create($val_data);
 
@@ -93,7 +110,11 @@ class PostController extends Controller
         $categories = Category::orderByDesc('id')->get();
         $tags = Tag::orderByDesc('id')->get();
 
-        return view('admin.posts.edit', compact('post', 'categories', 'tags'));
+
+        if (Auth::id() === $post->user_id) {
+            return view('admin.posts.edit', compact('post', 'categories', 'tags'));
+        }
+        abort(403);
     }
 
     /**
@@ -123,6 +144,26 @@ class PostController extends Controller
         //dd($val_data);
 
 
+
+        if ($request->hasFile('cover_image')) {
+            //dd('here');
+
+            //if post->cover_image
+            // delete the previous image
+
+            if ($post->cover_image) {
+                Storage::delete($post->cover_image);
+            }
+
+            // Save the file in the storage and get its path
+            $image_path = Storage::put('uploads', $request->cover_image);
+            //dd($image_path);
+            $val_data['cover_image'] = $image_path;
+        }
+
+
+
+
         $post->update($val_data);
 
         if ($request->has('tags')) {
@@ -142,6 +183,11 @@ class PostController extends Controller
     {
         //detach all relationships with tags in the pivot table (only if cascadeOnDelete is not in the db migration)
         //$post->tags()->sync([]);
+
+        // remove the image from the storage
+        if ($post->cover_image) {
+            Storage::delete($post->cover_image);
+        }
         $post->delete();
         return to_route('admin.posts.index')->with('message', 'Post: ' . $post->title . 'Deleted');
     }

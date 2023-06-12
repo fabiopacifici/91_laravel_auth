@@ -546,3 +546,38 @@ nel file html.json (File>Preference>ConfigureUserSnippets) select html.json
 }
 
 ```
+
+## One To Many User->Post
+
+- create the migration for the foreign key to add to posts table
+- add relationship oneToMany inside Post and User models
+- add user_id to fillable properties in the Post model `protected $fillable = ['title', 'content', 'cover_image', 'slug', 'category_id', 'user_id'];`
+- edit in the PostController@index method the way how you get the data `$posts = Auth::user()->posts()->orderByDesc('id')->paginate(8);`
+- update the PostController@store method and update the val data
+
+```php
+      // Add user_id to val_data
+      $val_data['user_id'] = Auth::id();
+      //dd($val_data);
+
+      // Create the new Post
+      $new_post = Post::create($val_data);
+
+```
+
+- restrict edit view access with abort(403)
+
+```php
+
+ public function edit(Post $post)
+    {
+        $categories = Category::orderByDesc('id')->get();
+        $tags = Tag::orderByDesc('id')->get();
+
+
+        if (Auth::id() === $post->user_id) {
+            return view('admin.posts.edit', compact('post', 'categories', 'tags'));
+        }
+        abort(403);
+    }
+```

@@ -5,7 +5,7 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\PostController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
-
+use App\Http\Controllers\Admin\TagController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -36,7 +36,11 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
 
     Route::resource('categories', CategoryController::class)->parameters([
         'categories' => 'category:slug'
-    ]);
+    ])->only(['index', 'store', 'update', 'destroy']);
+
+    Route::resource('tags', TagController::class)->parameters([
+        'tags' => 'tag:slug'
+    ])->only(['index', 'store', 'update', 'destroy']);
 });
 
 

@@ -3,7 +3,7 @@
 
 @section('content')
 <h1>Show posts table</h1>
-<a class="create_btn btn btn-dark position-fixed bottom-0 end-0" href="{{route('admin.posts.create')}}" role="button">
+<a class="create_btn btn btn-dark position-fixed bottom-0 end-0 d-flex align-items-center justify-content-center" href="{{route('admin.posts.create')}}" role="button">
 
     <i class="fas fa-plus fa-2x fa-fw"></i>
 
@@ -34,18 +34,20 @@
             @forelse ($posts as $post)
             <tr class="table-light">
                 <td scope="row">{{$post->id}}</td>
-                <td><img height="100" src="{{$post->cover_image}}" alt="{{$post->title}}"></td>
+                <td>
+                    <img height="100" src="{{ asset('storage/' . $post->cover_image) }}" alt="{{$post->title}}">
+                </td>
                 <td>{{$post->title}}</td>
                 <td>{{$post->slug}}</td>
                 <td>
-                    <a class="btn" href="{{route('admin.posts.show', $post->slug)}}">
+                    <a class="btn btn-dark" href="{{route('admin.posts.show', $post->slug)}}">
                         <i class="fas fa-eye fa-sm fa-fw"></i>
                     </a>
-                    <a class="btn" href="{{route('admin.posts.edit', $post->slug)}}">
+                    <a class="btn btn-secondary" href="{{route('admin.posts.edit', $post->slug)}}">
                         <i class="fas fa-pencil fa-sm fa-fw"></i>
                     </a>
                     <!-- Modal trigger button -->
-                    <button type="button" class="btn btn-link" data-bs-toggle="modal" data-bs-target="#modal-{{$post->id}}">
+                    <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#modal-{{$post->id}}">
                         <i class="fas fa-trash fa-sm fa-fw"></i>
                     </button>
 
@@ -91,6 +93,7 @@
 
         </tfoot>
     </table>
+    {{$posts->links('pagination::bootstrap-5')}}
 </div>
 
 
