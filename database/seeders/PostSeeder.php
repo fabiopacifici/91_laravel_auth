@@ -23,10 +23,10 @@ class PostSeeder extends Seeder
             $post = new Post();
             $post->title = $faker->sentence(3);
             $post->slug = Str::slug($post->title, '-');
-            $post->content = $faker->paragraphs(asText: true);
+            $post->content = $faker->paragraphs(true);
             $post->user_id = 1;
-            $post->cover_image = 'placeholders/' . $faker->image('storage/app/public/placeholders/', fullPath: false, category: 'Posts', format: 'jpg', word: $post->title, gray: true);
-            //dd($post);
+            $post->cover_image = 'placeholders/' . $faker->image('storage/app/public/placeholders/', 640, 480, 'Posts', false, true,  $post->title, true);
+            dd($post);
             $post->save();
         }
     }
